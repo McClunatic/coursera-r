@@ -22,3 +22,19 @@ complete <- function(directory, id = 1:332) {
     colnames(res) <- c("id", "nobs")
     res
 }
+
+corr <- function(directory, threshold = 0) {
+    # Get above-threshold file names
+    files <- dir(directory)
+    completed <- complete(directory, seq_along(files))
+    above <- completed[completed$nobs > threshold, ]
+
+    corrs <- numeric(nrow(above))
+    for (i in seq_along(corrs)) {
+        csv <- file.path(directory, sprintf("%03d.csv", above$id[[i]]))
+        df <- read.csv(csv)
+        gdf <- df[complete.cases(df), ]
+        corrs[[i]] <- cor(gdf[c("sulfate", "nitrate")])[1, 2]
+    }
+    corrs
+}
